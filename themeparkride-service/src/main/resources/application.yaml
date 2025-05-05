@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: themeparkride-service
+  datasource:
+    url: jdbc:h2:mem:themeparkrideDB
+    username: sa
+    password:
+    driverClassName: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+  h2:
+    console:
+      enabled: true
+server:
+  port: 8082
+
+eureka:
+  instance:
+    preferIpAddress: true
+#    ipAddress: 127.0.0.1  # ou votre IP locale, par exemple 192.168.1.x
+#    hostname: localhost
+#    instanceId: ${spring.application.name}:${server.port}
