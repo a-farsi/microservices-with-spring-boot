@@ -1,0 +1,177 @@
+services:
+  customer-db:
+    image: postgres:16
+    env_file: ./.env
+    container_name: customer-db
+    environment:
+      POSTGRES_DB: ${POSTGRESDB_DB_CUSTOMER}
+      POSTGRES_USER: ${POSTGRESDB_USER_CUSTOMER}
+      POSTGRES_PASSWORD: ${POSTGRESDB_PWD_CUSTOMER}
+    volumes:
+      - customer-db-data:/var/lib/postgresql/data
+    ports:
+      - "${CUSTOMERDB_HOST_PORT}:${POSTGRESDB_DOCKER_PORT}"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRESDB_USER_CUSTOMER} -d ${POSTGRESDB_DB_CUSTOMER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  themeparkride-db:
+    image: postgres:16
+    env_file: ./.env
+    container_name: themeparkride-db
+    environment:
+      POSTGRES_DB: ${POSTGRESDB_DB_THEMEPARKRIDE}
+      POSTGRES_USER: ${POSTGRESDB_USER_THEMEPARKRIDE}
+      POSTGRES_PASSWORD: ${POSTGRESDB_PWD_THEMEPARKRIDE}
+    volumes:
+      - themeparkride-db-data:/var/lib/postgresql/data
+    ports:
+      - "${THEMEPARKRIDEDB_HOST_PORT}:${POSTGRESDB_DOCKER_PORT}"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRESDB_USER_THEMEPARKRIDE} -d ${POSTGRESDB_DB_THEMEPARKRIDE}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  booking-db:
+    image: postgres:16
+    env_file: ./.env
+    container_name: booking-db
+    environment:
+      POSTGRES_DB: ${POSTGRESDB_DB_BOOKING}
+      POSTGRES_USER: ${POSTGRESDB_USER_BOOKING}
+      POSTGRES_PASSWORD: ${POSTGRESDB_PWD_BOOKING}
+    volumes:
+      - booking-db-data:/var/lib/postgresql/data
+    ports:
+      - "${BOOKINGDB_HOST_PORT}:${POSTGRESDB_DOCKER_PORT}"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRESDB_USER_BOOKING} -d ${POSTGRESDB_DB_BOOKING}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  my-discovery-service:
+    build: ./discovery-service
+    image: my-discovery-service:v1
+    env_file: ./.env
+    container_name: my-discovery-service
+    ports:
+      - "${DISCOVERY_HOST_PORT}:${DISCOVERY_DOCKER_PORT}"
+    expose:
+      - "${DISCOVERY_DOCKER_PORT}"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:${DISCOVERY_DOCKER_PORT}/actuator/health" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  my-customer-service:
+    build: ./customer-service
+    image: my-customer-service:v1
+    env_file: ./.env
+    container_name: my-customer-service
+    ports:
+      - "${CUSTOMER_HOST_PORT}:${CUSTOMER_DOCKER_PORT}"
+    expose:
+      - "${CUSTOMER_DOCKER_PORT}"
+    environment:
+      - DISCOVERY_SERVICE_URL=http://my-discovery-service:${DISCOVERY_DOCKER_PORT}/eureka
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://customer-db:${POSTGRESDB_DOCKER_PORT}/${POSTGRESDB_DB_CUSTOMER}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRESDB_USER_CUSTOMER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRESDB_PWD_CUSTOMER}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_SHOW_SQL=true
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
+    depends_on:
+      my-discovery-service:
+        condition: service_healthy
+      customer-db:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:${CUSTOMER_DOCKER_PORT}/actuator/health" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  my-themeparkride-service:
+    build: ./themeparkride-service
+    image: my-themeparkride-service:v1
+    env_file: ./.env
+    container_name: my-themeparkride-service
+    ports:
+      - "${THEMEPARKRIDE_HOST_PORT}:${THEMEPARKRIDE_DOCKER_PORT}"
+    expose:
+      - "${THEMEPARKRIDE_DOCKER_PORT}"
+    environment:
+      - DISCOVERY_SERVICE_URL=http://my-discovery-service:${DISCOVERY_DOCKER_PORT}/eureka
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://themeparkride-db:${POSTGRESDB_DOCKER_PORT}/${POSTGRESDB_DB_THEMEPARKRIDE}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRESDB_USER_THEMEPARKRIDE}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRESDB_PWD_THEMEPARKRIDE}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_SHOW_SQL=true
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
+    depends_on:
+      my-customer-service:
+        condition: service_healthy
+      themeparkride-db:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:${THEMEPARKRIDE_DOCKER_PORT}/actuator/health" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - /tmp:/app/data
+
+  my-booking-service:
+    build: ./booking-service
+    image: my-booking-service:v1
+    env_file: ./.env
+    container_name: my-booking-service
+    ports:
+      - "${BOOKING_HOST_PORT}:${BOOKING_DOCKER_PORT}"
+    expose:
+      - "${BOOKING_DOCKER_PORT}"
+    environment:
+      - DISCOVERY_SERVICE_URL=http://my-discovery-service:${DISCOVERY_DOCKER_PORT}/eureka
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://booking-db:${POSTGRESDB_DOCKER_PORT}/${POSTGRESDB_DB_BOOKING}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRESDB_USER_BOOKING}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRESDB_PWD_BOOKING}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_SHOW_SQL=true
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
+    depends_on:
+      my-themeparkride-service:
+        condition: service_healthy
+      booking-db:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:${BOOKING_DOCKER_PORT}/actuator/health" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - /tmp:/app/data
+
+  my-gateway-service:
+    build: ./gateway-service
+    image: my-gateway-service:v1
+    env_file: ./.env
+    container_name: my-gateway-service
+    ports:
+      - "${GATEWAY_PORT}:${GATEWAY_DOCKER_PORT}"
+    expose:
+      - "${GATEWAY_DOCKER_PORT}"
+    environment:
+      - DISCOVERY_SERVICE_URL=http://my-discovery-service:${DISCOVERY_DOCKER_PORT}/eureka
+    depends_on:
+      my-discovery-service:
+        condition: service_healthy
+
+volumes:
+  customer-db-data:
+  themeparkride-db-data:
+  booking-db-data:

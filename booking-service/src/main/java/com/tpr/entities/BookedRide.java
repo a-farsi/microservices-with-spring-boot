@@ -7,11 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Transient;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import com.tpr.model.ThemeParkRide;
 
 @Entity
@@ -20,6 +16,7 @@ import com.tpr.model.ThemeParkRide;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(exclude = "booking")
 public class BookedRide {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

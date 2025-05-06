@@ -5,7 +5,7 @@
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/booking-service" />
-        <option name="gradleJvm" value="#JAVA_HOME" />
+        <option name="gradleHome" value="/opt/gradle/gradle-8.1.1" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/booking-service" />
@@ -14,7 +14,7 @@
       </GradleProjectSettings>
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/config-service" />
-        <option name="gradleJvm" value="#JAVA_HOME" />
+        <option name="gradleHome" value="/opt/gradle/gradle-8.1.1" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/config-service" />
@@ -23,7 +23,7 @@
       </GradleProjectSettings>
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/customer-service" />
-        <option name="gradleJvm" value="#JAVA_HOME" />
+        <option name="gradleHome" value="/opt/gradle/gradle-8.1.1" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/customer-service" />
@@ -32,7 +32,7 @@
       </GradleProjectSettings>
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/discovery-service" />
-        <option name="gradleJvm" value="#JAVA_HOME" />
+        <option name="gradleHome" value="/opt/gradle/gradle-8.1.1" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/discovery-service" />
@@ -41,7 +41,7 @@
       </GradleProjectSettings>
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/gateway-service" />
-        <option name="gradleJvm" value="#JAVA_HOME" />
+        <option name="gradleHome" value="/opt/gradle/gradle-8.1.1" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/gateway-service" />
@@ -50,7 +50,7 @@
       </GradleProjectSettings>
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/themeparkride-service" />
-        <option name="gradleJvm" value="#JAVA_HOME" />
+        <option name="gradleHome" value="/opt/gradle/gradle-8.1.1" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/themeparkride-service" />

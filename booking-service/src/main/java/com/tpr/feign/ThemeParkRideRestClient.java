@@ -10,9 +10,9 @@ import com.tpr.model.ThemeParkRide;
 
 @FeignClient(name = "themeparkride-service")
 public interface ThemeParkRideRestClient {
-	@GetMapping("/themeparkrides/{id}")
+	@GetMapping("/rides/{id}")
 	ThemeParkRide getThemeParkRideById(@PathVariable Long id);
 
-	@GetMapping("/themeparkrides")
+	@GetMapping("/rides")
 	List<ThemeParkRide> getAllThemeParkRides();
 }
