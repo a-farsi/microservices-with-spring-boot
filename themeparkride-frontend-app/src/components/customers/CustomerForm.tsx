@@ -15,7 +15,7 @@ const CustomerForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const isEditMode = id !== 'new';
+  const isEditMode = id !== 'new' && id !== undefined;
 
   const form = useForm<Customer>({
     defaultValues: {
@@ -27,11 +27,11 @@ const CustomerForm = () => {
   });
 
   // Utiliser useQuery avec la configuration correcte
-  const { isLoading: isLoadingCustomer } = useQuery({
+  useQuery({
     queryKey: ['customer', id],
     queryFn: () => customerService.getById(Number(id)),
     enabled: isEditMode,
-    onSettled: (data) => {
+    onSuccess: (data) => {
       if (data) {
         form.reset(data);
       }
@@ -78,16 +78,14 @@ const CustomerForm = () => {
   });
 
   const onSubmit = (data: Customer) => {
+    console.log('Submitting customer', data, 'isEditMode:', isEditMode);
+    
     if (isEditMode) {
       updateMutation.mutate({ id: Number(id), customer: data });
     } else {
       createMutation.mutate(data);
     }
   };
-
-  if (isLoadingCustomer) {
-    return <div className="flex justify-center p-8">Chargement des données du client...</div>;
-  }
 
   return (
     <Card className="max-w-2xl mx-auto my-8">

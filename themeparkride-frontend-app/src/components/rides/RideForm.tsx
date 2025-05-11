@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -17,7 +16,7 @@ const RideForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const isEditMode = id !== 'new';
+  const isEditMode = id !== 'new' && id !== undefined;
 
   const form = useForm<ThemeParkRide>({
     defaultValues: {
@@ -28,12 +27,12 @@ const RideForm = () => {
     }
   });
 
-  const { isLoading: isLoadingRide } = useQuery({
+  useQuery({
     queryKey: ['ride', id],
     queryFn: () => themeParkRideService.getById(Number(id)),
     enabled: isEditMode,
-    meta: {
-      onSuccess: (data: ThemeParkRide) => {
+    onSuccess: (data) => {
+      if (data) {
         form.reset(data);
       }
     }
@@ -79,16 +78,14 @@ const RideForm = () => {
   });
 
   const onSubmit = (data: ThemeParkRide) => {
+    console.log('Submitting ride', data, 'isEditMode:', isEditMode);
+
     if (isEditMode) {
       updateMutation.mutate({ id: Number(id), ride: data });
     } else {
       createMutation.mutate(data);
     }
   };
-
-  if (isLoadingRide) {
-    return <div className="flex justify-center p-8">Chargement des données de l'attraction...</div>;
-  }
 
   return (
     <Card className="max-w-2xl mx-auto my-8">
