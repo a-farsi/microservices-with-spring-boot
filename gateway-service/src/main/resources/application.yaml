@@ -6,6 +6,13 @@ spring:
       discovery:
         locator:
           lower-case-service-id: true
+#      globalcors:
+#        corsConfigurations:
+#          '[/**]':
+#            allowedOrigins: "*"
+#            allowedMethods: "*"
+#            allowedHeaders: "*"
+#            allowCredentials: false
 server:
   port: 9999
 
@@ -15,3 +22,14 @@ eureka:
       defaultZone: ${DISCOVERY_SERVICE_URL:http://localhost:8761/eureka}
   instance:
     preferIpAddress: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  server:
+    port: 9999
+  endpoint:
+    health:
+      show-details: always

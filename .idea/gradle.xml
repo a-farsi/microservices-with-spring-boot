@@ -13,15 +13,6 @@
         </option>
       </GradleProjectSettings>
       <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/config-service" />
-        <option name="gradleHome" value="/opt/gradle/gradle-8.1.1" />
-        <option name="modules">
-          <set>
-            <option value="$PROJECT_DIR$/config-service" />
-          </set>
-        </option>
-      </GradleProjectSettings>
-      <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/customer-service" />
         <option name="gradleHome" value="/opt/gradle/gradle-8.1.1" />
         <option name="modules">

@@ -1,33 +1,35 @@
 package com.tpr.web;
 
-import java.util.List;
-import java.util.Objects;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
-
+import com.tpr.dto.BookingRequestDTO;
 import com.tpr.entities.Booking;
 import com.tpr.feign.CustomerRestClient;
 import com.tpr.feign.ThemeParkRideRestClient;
 import com.tpr.repository.BookedRideRepository;
 import com.tpr.repository.BookingRepository;
+import com.tpr.service.BookingService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Objects;
 
 @RestController
 public class BookingRestController {
 	@Autowired
-	BookingRepository bookingRepository;
+	private BookingRepository bookingRepository;
 	@Autowired
-	BookedRideRepository bookedRideRepository;
+	private CustomerRestClient customerRestClient;
 	@Autowired
-	CustomerRestClient customerRestClient;
+	private BookingService bookingService;
+
 
 	@Autowired
 	private ThemeParkRideRestClient themeParkRideRestClient;
 
 
-	@GetMapping(path = "/api/borrows/{id}")
+	@GetMapping(path = "/api/bookings/{id}")
 	public Booking getBookingById(@PathVariable Long id) {
 
 		Booking booking = bookingRepository.findById(id).orElse(null);
@@ -45,4 +47,15 @@ public class BookingRestController {
 		return bookingRepository.findAll();
 	}
 
+	@PostMapping(path = "/bookings")
+	public ResponseEntity<Booking> createBooking(@RequestBody BookingRequestDTO bookingRequestDTO) {
+		Booking createdBooking = bookingService.createBooking(bookingRequestDTO);
+		return new ResponseEntity<>(createdBooking, HttpStatus.CREATED);
+	}
+
+	@DeleteMapping(path = "/bookings/{id}")
+	public ResponseEntity<Void> deleteBooking(@PathVariable Long id) {
+		bookingRepository.deleteById(id);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
 }

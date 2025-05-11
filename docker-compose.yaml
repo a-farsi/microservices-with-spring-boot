@@ -68,34 +68,6 @@ services:
       timeout: 10s
       retries: 5
 
-  my-customer-service:
-    build: ./customer-service
-    image: my-customer-service:v1
-    env_file: ./.env
-    container_name: my-customer-service
-    ports:
-      - "${CUSTOMER_HOST_PORT}:${CUSTOMER_DOCKER_PORT}"
-    expose:
-      - "${CUSTOMER_DOCKER_PORT}"
-    environment:
-      - DISCOVERY_SERVICE_URL=http://my-discovery-service:${DISCOVERY_DOCKER_PORT}/eureka
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://customer-db:${POSTGRESDB_DOCKER_PORT}/${POSTGRESDB_DB_CUSTOMER}
-      - SPRING_DATASOURCE_USERNAME=${POSTGRESDB_USER_CUSTOMER}
-      - SPRING_DATASOURCE_PASSWORD=${POSTGRESDB_PWD_CUSTOMER}
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - SPRING_JPA_SHOW_SQL=true
-      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
-    depends_on:
-      my-discovery-service:
-        condition: service_healthy
-      customer-db:
-        condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:${CUSTOMER_DOCKER_PORT}/actuator/health" ]
-      interval: 10s
-      timeout: 10s
-      retries: 5
-
   my-themeparkride-service:
     build: ./themeparkride-service
     image: my-themeparkride-service:v1
@@ -114,7 +86,7 @@ services:
       - SPRING_JPA_SHOW_SQL=true
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
     depends_on:
-      my-customer-service:
+      my-discovery-service:
         condition: service_healthy
       themeparkride-db:
         condition: service_healthy
@@ -125,6 +97,33 @@ services:
       retries: 5
     volumes:
       - /tmp:/app/data
+  my-customer-service:
+    build: ./customer-service
+    image: my-customer-service:v1
+    env_file: ./.env
+    container_name: my-customer-service
+    ports:
+      - "${CUSTOMER_HOST_PORT}:${CUSTOMER_DOCKER_PORT}"
+    expose:
+      - "${CUSTOMER_DOCKER_PORT}"
+    environment:
+      - DISCOVERY_SERVICE_URL=http://my-discovery-service:${DISCOVERY_DOCKER_PORT}/eureka
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://customer-db:${POSTGRESDB_DOCKER_PORT}/${POSTGRESDB_DB_CUSTOMER}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRESDB_USER_CUSTOMER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRESDB_PWD_CUSTOMER}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_SHOW_SQL=true
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
+    depends_on:
+      my-themeparkride-service:
+        condition: service_healthy
+      customer-db:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:${CUSTOMER_DOCKER_PORT}/actuator/health" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
 
   my-booking-service:
     build: ./booking-service
@@ -145,6 +144,8 @@ services:
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
     depends_on:
       my-themeparkride-service:
+        condition: service_healthy
+      my-customer-service:
         condition: service_healthy
       booking-db:
         condition: service_healthy
@@ -169,6 +170,26 @@ services:
       - DISCOVERY_SERVICE_URL=http://my-discovery-service:${DISCOVERY_DOCKER_PORT}/eureka
     depends_on:
       my-discovery-service:
+        condition: service_healthy
+      my-booking-service:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:${GATEWAY_DOCKER_PORT}/actuator/health" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  my-frontend-app:
+    build: ./themeparkride-frontend-app
+    image: my-frontend-app:v1
+    env_file: ./.env
+    container_name: my-frontend-app
+    ports:
+      - "${FRONTEND_HOST_PORT}:${FRONTEND_DOCKER_PORT}"
+    environment:
+      - REACT_APP_GATEWAY_HOST=http://my-gateway-service
+    depends_on:
+      my-gateway-service:
         condition: service_healthy
 
 volumes:
