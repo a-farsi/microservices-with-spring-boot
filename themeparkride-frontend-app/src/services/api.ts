@@ -2,7 +2,8 @@
 import axios from 'axios';
 import { Customer, ThemeParkRide, Booking, BookedRide } from '../types/models';
 
-const API_BASE_URL = 'http://localhost:9999';
+// const API_BASE_URL = 'http://localhost:9999';
+const API_BASE_URL = process.env.REACT_APP_GATEWAY_HOST || 'http://localhost:9999';
 
 // Customer Service API
 export const customerService = {
