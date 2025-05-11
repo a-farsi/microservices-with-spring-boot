@@ -1,0 +1,24 @@
+# Logs
+themeparkride-frontend-app//logs
+themeparkride-frontend-app/*.log
+themeparkride-frontend-app/npm-debug.log*
+themeparkride-frontend-app/yarn-debug.log*
+themeparkride-frontend-app/yarn-error.log*
+themeparkride-frontend-app/pnpm-debug.log*
+themeparkride-frontend-app/lerna-debug.log*
+
+themeparkride-frontend-app/node_modules
+themeparkride-frontend-app/dist
+themeparkride-frontend-app/dist-ssr
+themeparkride-frontend-app/*.local
+
+# Editor directories and files
+themeparkride-frontend-app/.vscode/*
+themeparkride-frontend-app/!.vscode/extensions.json
+themeparkride-frontend-app/.idea
+themeparkride-frontend-app/.DS_Store
+themeparkride-frontend-app/*.suo
+themeparkride-frontend-app/*.ntvs*
+themeparkride-frontend-app/*.njsproj
+themeparkride-frontend-app/*.sln
+themeparkride-frontend-app/*.sw?
