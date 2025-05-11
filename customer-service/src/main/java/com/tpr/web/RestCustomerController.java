@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tpr.entities.Customer;
@@ -22,5 +23,9 @@ public class RestCustomerController {
 	@GetMapping("/customers/{id}")
 	Customer findCustomerById(@PathVariable Long id) {
 		return customerRepository.findById(id).orElse(null);
+	}
+	@PostMapping("/customers")
+	Customer createCustomer(Customer customer) {
+		return customerRepository.save(customer);
 	}
 }
