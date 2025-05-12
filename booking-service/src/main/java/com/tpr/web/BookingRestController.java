@@ -58,4 +58,11 @@ public class BookingRestController {
 		bookingRepository.deleteById(id);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
+
+	@PutMapping(path = "/booking/{id}")
+	public ResponseEntity<Booking> updateBooking(@PathVariable Long id, @RequestBody BookingRequestDTO bookingRequestDTO) {
+		Booking updatedBooking = bookingService.createBooking(bookingRequestDTO);
+		return new ResponseEntity<>(updatedBooking, HttpStatus.OK);
+	}
+
 }
