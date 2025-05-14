@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -27,16 +28,20 @@ const RideForm = () => {
     }
   });
 
-  useQuery({
+  // Fetch ride data if in edit mode
+  const { data: rideData, isLoading } = useQuery({
     queryKey: ['ride', id],
     queryFn: () => themeParkRideService.getById(Number(id)),
-    enabled: isEditMode,
-    onSuccess: (data) => {
-      if (data) {
-        form.reset(data);
-      }
-    }
+    enabled: isEditMode
   });
+
+  // Effect to set form data when rideData is loaded
+  useEffect(() => {
+    if (rideData) {
+      console.log("Ride data loaded:", rideData);
+      form.reset(rideData);
+    }
+  }, [rideData, form]);
 
   const createMutation = useMutation({
     mutationFn: themeParkRideService.create,
@@ -58,8 +63,8 @@ const RideForm = () => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, ride }: { id: number, ride: ThemeParkRide }) => 
-      themeParkRideService.update(id, ride),
+    mutationFn: ({ id, ride }: { id: number, ride: ThemeParkRide }) =>
+        themeParkRideService.update(id, ride),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['rides'] });
       toast({
@@ -87,111 +92,121 @@ const RideForm = () => {
     }
   };
 
-  return (
-    <Card className="max-w-2xl mx-auto my-8">
-      <CardHeader>
-        <div className="flex items-center mb-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/rides')}
-            className="mr-4"
-          >
-            <ArrowLeft size={16} />
-          </Button>
-          <CardTitle>
-            {isEditMode ? 'Modifier l\'Attraction' : 'Ajouter une Attraction'}
-          </CardTitle>
+  if (isLoading && isEditMode) {
+    return (
+        <div className="max-w-2xl mx-auto my-8 p-6 text-center">
+          Chargement des informations de l'attraction...
         </div>
-      </CardHeader>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nom</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Nom de l'attraction" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+    );
+  }
 
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Description de l'attraction"
-                      rows={4}
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="thrillFactor"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Facteur de Sensation (1-10)</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number"
-                        min={1}
-                        max={10}
-                        {...field}
-                        onChange={e => field.onChange(Number(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="vomitFactor"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Facteur de Vertige (1-10)</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number"
-                        min={1}
-                        max={10}
-                        {...field}
-                        onChange={e => field.onChange(Number(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="flex justify-end">
-            <Button 
-              type="submit" 
-              disabled={createMutation.isPending || updateMutation.isPending}
+  return (
+      <Card className="max-w-2xl mx-auto my-8">
+        <CardHeader>
+          <div className="flex items-center mb-2">
+            <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/rides')}
+                className="mr-4"
             >
-              {isEditMode ? 'Mettre à jour' : 'Créer'}
+              <ArrowLeft size={16} />
             </Button>
-          </CardFooter>
-        </form>
-      </Form>
-    </Card>
+            <CardTitle>
+              {isEditMode ? 'Modifier l\'Attraction' : 'Ajouter une Attraction'}
+            </CardTitle>
+          </div>
+        </CardHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <CardContent className="space-y-4">
+              <FormField
+                  control={form.control}
+                  name="name"
+                  rules={{ required: "Le nom est requis" }}
+                  render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nom</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Nom de l'attraction" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                  )}
+              />
+
+              <FormField
+                  control={form.control}
+                  name="description"
+                  rules={{ required: "La description est requise" }}
+                  render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Description</FormLabel>
+                        <FormControl>
+                          <Textarea
+                              placeholder="Description de l'attraction"
+                              rows={4}
+                              {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                  )}
+              />
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                    control={form.control}
+                    name="thrillFactor"
+                    render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Facteur de Sensation (1-10)</FormLabel>
+                          <FormControl>
+                            <Input
+                                type="number"
+                                min={1}
+                                max={10}
+                                {...field}
+                                onChange={e => field.onChange(Number(e.target.value))}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="vomitFactor"
+                    render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Facteur de Vertige (1-10)</FormLabel>
+                          <FormControl>
+                            <Input
+                                type="number"
+                                min={1}
+                                max={10}
+                                {...field}
+                                onChange={e => field.onChange(Number(e.target.value))}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                    )}
+                />
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-end">
+              <Button
+                  type="submit"
+                  disabled={createMutation.isPending || updateMutation.isPending}
+              >
+                {isEditMode ? 'Mettre à jour' : 'Créer'}
+              </Button>
+            </CardFooter>
+          </form>
+        </Form>
+      </Card>
   );
 };
 

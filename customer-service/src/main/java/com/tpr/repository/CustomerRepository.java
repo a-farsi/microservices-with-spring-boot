@@ -9,4 +9,5 @@ import com.tpr.entities.Customer;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
+	Long id(Long id);
 }
